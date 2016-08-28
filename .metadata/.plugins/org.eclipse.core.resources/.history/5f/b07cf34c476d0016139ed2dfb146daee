@@ -1,0 +1,91 @@
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import net.proteanit.sql.DbUtils;
+
+import javax.swing.JLabel;
+import java.awt.Font;
+import javax.swing.JButton;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+import java.sql.*;
+import javax.swing.*;
+
+public class EmployeeInfo2 extends JFrame {
+
+	private JPanel contentPane;
+	private JTable table;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					EmployeeInfo2 frame = new EmployeeInfo2();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	//connection belongs to java.sql.Connection class
+	Connection connection = null;
+	
+	
+	/**
+	 * Create the frame.
+	 */
+	public EmployeeInfo2() {
+		//conneccts employeeInfo to the database using .dbConnector
+		connection = sqliteConnection.dbConnector();
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 451);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JButton btnLoadTable = new JButton("Load Data");
+		btnLoadTable.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//copy pasta blank try catch
+				try {
+					//create query to pass to connection
+					//String query = "select * from EmployeeInfo";// * shows all columns
+					//****to only show specific columns:
+					String query = "select EID, Name, Surname, picture from EmployeeInfo";
+					PreparedStatement pst = connection.prepareStatement(query);
+					//executes query and passes result to set "rs"
+					ResultSet rs = pst.executeQuery();
+					//dbutil sets model table. imported net.proteanit.sql.DbUtils;
+					table.setModel(DbUtils.resultSetToTableModel(rs));
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		btnLoadTable.setBounds(10, 11, 89, 23);
+		contentPane.add(btnLoadTable);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 45, 764, 308);
+		contentPane.add(scrollPane);
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
+	}
+}

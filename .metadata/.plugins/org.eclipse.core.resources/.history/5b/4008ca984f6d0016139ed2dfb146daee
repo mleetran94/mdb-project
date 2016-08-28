@@ -1,0 +1,153 @@
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.border.EmptyBorder;
+
+import net.proteanit.sql.DbUtils;
+
+import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.awt.event.ActionEvent;
+
+import java.sql.*;
+import java.util.Scanner;
+
+import javax.swing.*;
+
+public class EmployeeInfo2 extends JFrame {
+
+	private JPanel contentPane;
+	private JTable table;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					EmployeeInfo2 frame = new EmployeeInfo2();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	
+	
+	/**
+	 * Create the frame.
+	 */
+	public EmployeeInfo2() {
+		
+		
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 451);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		
+		
+		JButton btnLoadTable = new JButton("Load Data");
+		btnLoadTable.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				Scanner sc = new Scanner(System.in);
+				
+				//connection belongs to java.sql.Connection class
+				Connection myConn = null;
+				Statement myStmnt = null;
+				ResultSet rs = null;
+				//PreparedStatement pst = null;
+				
+				InputStream input = null;
+				FileOutputStream output = null;
+				
+				
+				//copy pasta blank try catch
+				try {
+					//conneccts employeeInfo to the database using .dbConnector
+					//for testing uses
+					System.out.println("C:\\\\Users\\\\1\\\\mdb-project\\\\SQLite\\\\TestTable.sqlite");
+					
+					//user input path to .sqlite file
+					System.out.println("******\tInsert Path\t******");
+					System.out.println("Note: use double \\\\ for pathing");
+					System.out.println("Example path:C:\\\\Users\\\\PCName\\\\Databases\\\\filename.sqlite");
+					System.out.print("Path to database.sqlite:");
+					String inputDB =  sc.next();
+					myConn = DriverManager.getConnection("jdbc:sqlite:" + inputDB);
+					
+					
+					
+					//statement to exectute
+					myStmnt = myConn.createStatement();
+					String query = "select file from testTable where key='key2'";
+					rs = myStmnt.executeQuery(query);
+					
+					//Setup a handle to the file
+					System.out.println("Path to save files to: ");
+					String inputSave = sc.next();
+					File theFile = new File("" + inputSave + "\\image_from_key2db.png");
+					output = new FileOutputStream(theFile);
+					
+					if (rs.next()) {
+						
+						input = rs.getBinaryStream("file");
+						System.out.println("Reading id from database...");
+						System.out.println(query);
+						
+						byte[] buffer = new byte[1024];
+						while (input.read(buffer) > 0){
+							output.write(buffer);
+						}
+						System.out.println("\nSaved file: " + theFile.getAbsolutePath());
+						System.out.println("\nCompleted successfully!");
+						
+					}
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					if (input != null) {
+						try {
+							input.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					if (output != null) {
+						try {
+							output.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				
+			}
+		});
+		btnLoadTable.setBounds(10, 11, 89, 23);
+		contentPane.add(btnLoadTable);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 45, 764, 308);
+		contentPane.add(scrollPane);
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
+	}
+}

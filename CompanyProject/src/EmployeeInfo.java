@@ -1,23 +1,16 @@
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import net.proteanit.sql.DbUtils;
-
-import javax.swing.JLabel;
-import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
 import java.sql.*;
-import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class EmployeeInfo extends JFrame {
 
 	private JPanel contentPane;
