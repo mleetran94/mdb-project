@@ -3,6 +3,7 @@
 
 import java.awt.EventQueue;
 import javax.swing.border.EmptyBorder;
+import net.proteanit.sql.DbUtils;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,8 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.awt.event.ActionEvent;
 import java.sql.*;
-import java.util.Scanner;
 import javax.swing.*;
+import javax.swing.JFileChooser;
 
 
 
@@ -41,7 +42,27 @@ public class MDBProj2 extends JFrame {
 		});
 	}
 	
-	
+	//converts single backslashes in path string to double backslashes
+	//necessary to be properly read in connection path
+	public String getPath(String inputPath){
+		String outputPath = inputPath;
+		
+		for(int i = 0; i < inputPath.length(); i++)
+		{
+			char comparingCharacter = inputPath.charAt(i);
+			if(comparingCharacter == '\\'){//single quotes to compare char
+				outputPath = outputPath + "\\\\";
+				
+				//accounts for extra character ( '\' to '\\') as to no
+				i++;//prevents being stuck in loop since next character will be another backslash if not iterated an extra time
+			} else {
+				outputPath = outputPath + comparingCharacter;
+			}
+		}
+		
+		
+		return outputPath;
+	}
 	
 	/**
 	 * Create the frame.
@@ -50,63 +71,45 @@ public class MDBProj2 extends JFrame {
 		setAlwaysOnTop(true);
 		
 		
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 730, 335);
+		setBounds(100, 100, 920, 636);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JButton btnLoadTable = new JButton("Load Data");
+		JButton btnLoadTable = new JButton("Export...");	
 		btnLoadTable.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				@SuppressWarnings("resource")
-				Scanner sc = new Scanner(System.in);
+			public void actionPerformed(ActionEvent e1) {
 				
 				//connection belongs to java.sql.Connection class
 				Connection myConn = null;
 				Statement myStmnt = null;
 				ResultSet rs = null;
-				//PreparedStatement pst = null;
 				
 				InputStream input = null;
 				FileOutputStream output = null;
 				
+				String filePath = txtDBLoad.getText();
+				System.out.println("File Path Location:" + filePath);
+				String folderPath = txtSaveDir.getText();
+				System.out.println("Folder Path Directory:" + folderPath);
 				
-				//copy pasta blank try catch
 				try {
-					//conneccts employeeInfo to the database using .dbConnector
-					//for testing uses
-					System.out.println("C:\\\\Users\\\\1\\\\mdb-project\\\\SQLite\\\\TestTable.sqlite");
-					
-					//user input path to .sqlite file
-					System.out.println("******\tInsert Path\t******");
-					System.out.println("Note: use double \\\\ for pathing");
-					System.out.println("Example path:C:\\\\Users\\\\PCName\\\\Databases\\\\filename.sqlite");
-					System.out.print("Path to database.sqlite:");
-					String inputDB =  sc.next();
-					txtDBLoad.setText(inputDB);
-					myConn = DriverManager.getConnection("jdbc:sqlite:" + inputDB);
-					
-					
+					myConn = DriverManager.getConnection("jdbc:sqlite:" + filePath);
 					
 					//statement to execute
 					myStmnt = myConn.createStatement();
 					String query = "select key, f_name, l_name, file from testTable ";
 					rs = myStmnt.executeQuery(query);
-					
+					table.setModel(DbUtils.resultSetToTableModel(rs));
 					
 					//Setup a handle to the file
-					System.out.print("\nPath to save files to:");
-					String inputSave = sc.next();
-					txtSaveDir.setText(inputSave);
-					
-					
 					while(rs.next()){
 						if (rs.getBinaryStream("file") != null) {
 							String imgName = "" + rs.getString("key") + "_" + rs.getString("f_name") + "_" + rs.getString("l_name");
-							File theFile = new File("" + inputSave + "\\" + imgName + ".jpg");
+							File theFile = new File("" + folderPath + "\\" + imgName + ".jpg");
 							output = new FileOutputStream(theFile);
 							
 							input = rs.getBinaryStream("file");
@@ -130,7 +133,6 @@ public class MDBProj2 extends JFrame {
 						try {
 							input.close();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -138,7 +140,6 @@ public class MDBProj2 extends JFrame {
 						try {
 							output.close();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -146,34 +147,76 @@ public class MDBProj2 extends JFrame {
 				
 			}
 		});
-		btnLoadTable.setBounds(10, 11, 89, 23);
+		btnLoadTable.setBounds(45, 220, 150, 23);
 		contentPane.add(btnLoadTable);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(118, 14, 230, 85);
-		contentPane.add(scrollPane);
+		JScrollPane SPaneModelTable = new JScrollPane();
+		SPaneModelTable.setBounds(45, 259, 792, 289);
+		contentPane.add(SPaneModelTable);
 		
 		table = new JTable();
-		scrollPane.setViewportView(table);
+		SPaneModelTable.setViewportView(table);
 		
 		txtDBLoad = new JTextField();
-		txtDBLoad.setBounds(45, 162, 597, 20);
+		txtDBLoad.setBounds(45, 80, 597, 20);
 		contentPane.add(txtDBLoad);
 		txtDBLoad.setColumns(10);
 		
 		lblDBDir = new JLabel("Database loaded directory:");
-		lblDBDir.setBounds(10, 137, 164, 14);
+		lblDBDir.setBounds(171, 42, 219, 14);
 		contentPane.add(lblDBDir);
 		
 		lblFolderSaveDir = new JLabel("Folder saved directory:");
-		lblFolderSaveDir.setBounds(10, 193, 144, 14);
+		lblFolderSaveDir.setBounds(210, 129, 219, 14);
 		contentPane.add(lblFolderSaveDir);
 		
 		txtSaveDir = new JTextField();
-		txtSaveDir.setBounds(45, 218, 597, 20);
+		txtSaveDir.setBounds(45, 165, 597, 20);
 		contentPane.add(txtSaveDir);
 		txtSaveDir.setColumns(10);
+		
+		
+		//Create a file load chooser
+		final JFileChooser fcLoad = new JFileChooser();
+		
+		JButton btnLoadDb = new JButton("Load DB");
+		btnLoadDb.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(fcLoad.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					java.io.File file = fcLoad.getSelectedFile();
+					String path = file.getPath();
+					
+					txtDBLoad.setText(path);
+				} else {
+					//nothing happens yet
+					txtDBLoad.setText("No path");
+				}
+			}
+		});
+		btnLoadDb.setBounds(45, 35, 115, 29);
+		contentPane.add(btnLoadDb);
+		
+		
+		//Create a file save chooser
+		final JFileChooser fcSave = new JFileChooser();
+		
+		JButton btnSaveLocation = new JButton("Save location");
+		btnSaveLocation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				fcSave.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				
+				if(fcSave.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					String path = fcSave.getSelectedFile().toString();
+					
+					txtSaveDir.setText(path);
+				} else {
+					//nothing happens yet
+					txtSaveDir.setText("No path");
+				}
+			}
+		});
+		btnSaveLocation.setBounds(45, 122, 150, 29);
+		contentPane.add(btnSaveLocation);
 	}
-	
-	
 }
