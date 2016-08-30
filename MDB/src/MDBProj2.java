@@ -15,6 +15,7 @@ import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.Color;
 
 
 @SuppressWarnings("serial")
@@ -157,6 +158,8 @@ public class MDBProj2 extends JFrame {
 		SPaneModelTable.setViewportView(table);
 		
 		txtDBLoad = new JTextField();
+		txtDBLoad.setBackground(Color.WHITE);
+		txtDBLoad.setEditable(false);
 		txtDBLoad.setBounds(45, 80, 597, 20);
 		contentPane.add(txtDBLoad);
 		txtDBLoad.setColumns(10);
@@ -170,6 +173,8 @@ public class MDBProj2 extends JFrame {
 		contentPane.add(lblFolderSaveDir);
 		
 		txtSaveDir = new JTextField();
+		txtSaveDir.setBackground(Color.WHITE);
+		txtSaveDir.setEditable(false);
 		txtSaveDir.setBounds(45, 165, 597, 20);
 		contentPane.add(txtSaveDir);
 		txtSaveDir.setColumns(10);
@@ -179,6 +184,7 @@ public class MDBProj2 extends JFrame {
 		final JFileChooser fcLoad = new JFileChooser();
 		
 		JButton btnImportDb = new JButton("Import DB");
+		btnImportDb.setBackground(UIManager.getColor("Button.background"));
 		btnImportDb.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
