@@ -264,6 +264,7 @@ public class MDBProj2 extends JFrame {
 						//System.out.println(i +") Column Name:" + mrs.getColumnName(i) + " || Column Type:" + mrs.getColumnTypeName(i));
 					}
 					
+					
 					//recording information for later use
 					columnNames = colNames2;
 					columnTypeNames = colTypes2;
@@ -416,10 +417,20 @@ public class MDBProj2 extends JFrame {
 					cBoxColLbl1.removeAllItems();
 					cBoxColLbl2.removeAllItems();
 					cBoxColLbl3.removeAllItems();
+					/*
 					for(String s:columnNames){
 						cBoxColLbl1.addItem(s);
 						cBoxColLbl2.addItem(s);
 						cBoxColLbl3.addItem(s);
+					}
+					*old for loop
+					*/
+					for(int i = 0; i < columnNames.length; i++){
+						if (columnTypeNames[i].equals("BLOB") == false){
+							cBoxColLbl1.addItem(columnNames[i]);
+							cBoxColLbl2.addItem(columnNames[i]);
+							cBoxColLbl3.addItem(columnNames[i]);
+						}
 					}
 					
 				}
